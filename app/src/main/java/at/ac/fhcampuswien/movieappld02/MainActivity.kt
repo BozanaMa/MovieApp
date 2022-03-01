@@ -17,6 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import at.ac.fhcampuswien.movieappld02.models.Movie
+import at.ac.fhcampuswien.movieappld02.models.getMovies
 import at.ac.fhcampuswien.movieappld02.ui.theme.MovieAppLD02Theme
 
 class MainActivity : ComponentActivity() {
@@ -29,7 +31,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    val movies = listOf("Reservoir Dogs", "Harry Potter", "Marry Poppins", "GOT", "Brügge sehen und sterben")
+                    val movies = getMovies()
                     MainContent(movies = movies)
                 }
             }
@@ -38,15 +40,15 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainContent(movies: List<String> = listOf("Harry Potter", "LOTR", "Marry Poppins", "GOT", "Brügge sehen und sterben")){
+fun MainContent(movies: List<Movie> = getMovies()){
     LazyColumn {
-        item { Text(text = "Header") }
+        // item { Text(text = "Header") }   // add a single composable to LazyColumn
 
-        items(items = movies) { movie ->
-            MovieRow(movie = movie)
+        items(items = movies) { movie ->    // add a list of composables to LazyColumn
+            MovieRow(movie = movie)         // render MovieRow composable for each item
         }
         /*
-        itemsIndexed(movies){ index, movie ->
+        itemsIndexed(movies){ index, movie ->   // add a list of composables with index
             MovieRow(movie)
         }
 
@@ -56,7 +58,7 @@ fun MainContent(movies: List<String> = listOf("Harry Potter", "LOTR", "Marry Pop
 }
 
 @Composable
-fun MovieRow(movie: String = "Harry Potter") {
+fun MovieRow(movie: Movie = getMovies()[0]) {
     Card(
         modifier = Modifier
             .padding(4.dp)
@@ -73,7 +75,11 @@ fun MovieRow(movie: String = "Harry Potter") {
                Icon(imageVector = Icons.Default.AccountBox, contentDescription = "movie pic")
            }
 
-           Text(text = movie) 
+            Column {
+                Text(text = movie.title, style = MaterialTheme.typography.h6)
+                Text(text = "Director: ${movie.director}", style = MaterialTheme.typography.caption)
+                Text(text = "Released: ${movie.year}", style = MaterialTheme.typography.caption)
+            }
         }
         
     }
