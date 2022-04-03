@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import at.ac.fhcampuswien.movieappld02.models.Movie
 import at.ac.fhcampuswien.movieappld02.screens.detail.DetailScreen
+import at.ac.fhcampuswien.movieappld02.screens.favorites.FavoritesScreen
 import at.ac.fhcampuswien.movieappld02.screens.home.HomeScreen
 
 @Composable
@@ -19,7 +20,8 @@ fun MovieNavigation() {
         composable(MovieScreens.HomeScreen.name) { HomeScreen(navController = navController) }
 
         // url: www.domain.com/detailscreen/movie=12
-        composable(MovieScreens.DetailScreen.name + "/{movie}",
+        composable(
+            MovieScreens.DetailScreen.name + "/{movie}",
             arguments = listOf(navArgument("movie") {
                 type = NavType.StringType
             })
@@ -28,9 +30,14 @@ fun MovieNavigation() {
                 navController = navController,
                 movieId = backStackEntry.arguments?.getString("movie")
             )
+        }
 
-            //add more routes and screens here
+        //add more routes and screens here
+
+        composable(
+            route = MovieScreens.FavoritesScreen.name
+        ) {
+            FavoritesScreen(navController = navController)
         }
     }
 }
-
