@@ -12,12 +12,16 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -30,17 +34,18 @@ import coil.request.ImageRequest
 @ExperimentalAnimationApi
 @Composable
 fun MovieRow(
-    movie: Movie = getMovies()[0],
-    onItemClick: (String) -> Unit = {}
+    movie: Movie,
+    clickOnItem: (String) -> Unit = {},
+    clickOnFavorites: (Movie) -> Unit = {},
+    viewFavoIcon: Boolean = true,
+    Favorite: Boolean = false
 ) {
 
     Card(
         modifier = Modifier
             .padding(12.dp)
             .fillMaxWidth()
-            .clickable {
-                onItemClick(movie.id)
-            },
+            .clickable { clickOnItem(movie.id) },
 
         shape = RoundedCornerShape(corner = CornerSize(15.dp)),
         elevation = 6.dp
@@ -50,7 +55,8 @@ fun MovieRow(
                 modifier = Modifier
                     .size(100.dp)
                     .padding(12.dp),
-            ) {
+
+                ) {
 
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
@@ -58,9 +64,9 @@ fun MovieRow(
                         .crossfade(true)
                         .build(),
 
-                contentDescription ="movie poster",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.clip(CircleShape)
+                    contentDescription = "movie poster",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.clip(CircleShape)
                 )
 
 
@@ -98,6 +104,13 @@ fun MovieRow(
                     style = MaterialTheme.typography.caption
                 )
 
+                if (viewFavoIcon) {
+                    FavoriteIcon(
+                        movie, clickOnFavorite = { movie -> clickOnFavorites(movie) },
+                        Favorite = Favorite
+                    )
+                }
+
                 if (!arrowInfo) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowUp,
@@ -124,6 +137,7 @@ fun MovieRow(
                         Text(
                             text = "Rating: ${movie.rating}"
                         )
+
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowDown,
                             contentDescription = "arrow up",
@@ -136,8 +150,40 @@ fun MovieRow(
                 }
             }
         }
-
     }
+}
+
+@Composable
+fun FavoriteIcon(
+    movie: Movie,
+    clickOnFavorite: (Movie) -> Unit = {},
+    Favorite: Boolean
+) {
+    var fullHeart by remember { mutableStateOf(Favorite) }
+    IconButton(onClick = {
+        fullHeart = !fullHeart
+        clickOnFavorite(movie)
+    }) {
+
+        if (!fullHeart) {
+            Icon(
+                imageVector = Icons.Default.FavoriteBorder,
+                contentDescription = "Favorite Icon Border",
+                tint = Color.Red,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(20.dp)
+
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Default.Favorite,
+                contentDescription = "Favorite Icon",
+                tint = Color.Red
+            )
+        }
+    }
+
 }
 
 @Composable
@@ -157,15 +203,15 @@ fun HorizontalScrollableImageView(movie: Movie = getMovies()[0]) {
                         .crossfade(true)
                         .build(),
 
-                    contentDescription ="movie image",
-
+                    contentDescription = "Movie Image"
                 )
 
                 //Image(painter = rememberImagePainter(data = image),
-                  //  contentDescription = "movie image"
+                //  contentDescription = "movie image"
                 //)
             }
-
         }
     }
 }
+
+

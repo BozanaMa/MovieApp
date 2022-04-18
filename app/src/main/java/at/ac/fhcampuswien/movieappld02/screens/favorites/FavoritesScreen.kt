@@ -20,11 +20,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import at.ac.fhcampuswien.movieappld02.models.getMovies
+import at.ac.fhcampuswien.movieappld02.viewmodels.MovieViewModel
 import at.ac.fhcampuswien.movieappld02.widgets.MovieRow
+import androidx.lifecycle.viewmodel.compose.viewModel
+import at.ac.fhcampuswien.movieappld02.models.Movie
+import at.ac.fhcampuswien.movieappld02.navigation.MovieScreens
 
 @Composable
-fun FavoritesScreen(navController: NavController = rememberNavController()){
+fun FavoritesScreen(
+    navController: NavController = rememberNavController(),
+    viewModel: MovieViewModel = viewModel(),
+    favoriteMovies: List<Movie> = viewModel.getAllMovies()
+
+) {
 
     Scaffold(
         topBar = {
@@ -45,20 +53,23 @@ fun FavoritesScreen(navController: NavController = rememberNavController()){
         }
     )
     {
-        MainContent()
+        MainContent(viewModel = viewModel, navController)
     }
 }
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun MainContent(){
+fun MainContent(
+    viewModel: MovieViewModel = viewModel(),
+    navController: NavController = rememberNavController(),
+) {
     Column {
-        MovieRow(movie = getMovies()[5])
-        MovieRow(movie = getMovies()[4])
-        MovieRow(movie = getMovies()[3])
+        for (i in viewModel.getAllMovies()) {
+            MovieRow(movie = i, viewFavoIcon = false,
+                clickOnItem = { movieId -> navController.navigate(route = MovieScreens.DetailScreen.name + "/$movieId") })
+        }
     }
 }
-
 
 
 

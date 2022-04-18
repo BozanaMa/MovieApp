@@ -9,19 +9,19 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import at.ac.fhcampuswien.movieappld02.models.Movie
 import at.ac.fhcampuswien.movieappld02.models.getMovies
-import at.ac.fhcampuswien.movieappld02.widgets.HorizontalScrollableImageView
+import at.ac.fhcampuswien.movieappld02.viewmodels.MovieViewModel
 import at.ac.fhcampuswien.movieappld02.widgets.MovieRow
+import at.ac.fhcampuswien.movieappld02.widgets.HorizontalScrollableImageView
 
-@Preview(showBackground = true)
 @Composable
 fun DetailScreen(
     navController: NavController = rememberNavController(),
+    viewModel: MovieViewModel,
     movieId: String? = "tt0499549"
 ) {
 
@@ -42,28 +42,37 @@ fun DetailScreen(
 
                     Text(text = movie.title)
                 }
-
             }
         }
-
     )
     {
-        MainContent(movie = movie)
+        MainContent(movie, viewModel = viewModel) { movie ->
+            if (!viewModel.checkFavoriteMovies(movie)) {
+                viewModel.addMovie(movie)
+            } else {
+                viewModel.removeMovie(movie)
+            }
+        }
     }
 }
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun MainContent(movie: Movie) {
-
+fun MainContent(
+    movie: Movie,
+    viewModel: MovieViewModel,
+    onFavoriteClick: (Movie) -> Unit = {}
+) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight()) {
-
+            .fillMaxHeight()
+    ) {
         Column {
-
-            MovieRow(movie = movie)
+            MovieRow(
+                movie, clickOnFavorites = { movie -> onFavoriteClick(movie) },
+                Favorite = viewModel.checkFavoriteMovies(movie)
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -71,11 +80,10 @@ fun MainContent(movie: Movie) {
 
             Text(text = movie.title, style = MaterialTheme.typography.h5)
 
-           HorizontalScrollableImageView(movie = movie)
+            HorizontalScrollableImageView(movie = movie)
         }
     }
 }
-
 
 fun filterMovie(movieId: String?): Movie {
     return getMovies().filter { movie -> movie.id == movieId }[0]

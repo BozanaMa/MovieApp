@@ -15,17 +15,39 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-
 import at.ac.fhcampuswien.movieappld02.models.Movie
 import at.ac.fhcampuswien.movieappld02.models.getMovies
 import at.ac.fhcampuswien.movieappld02.navigation.MovieScreens
-import at.ac.fhcampuswien.movieappld02.screens.detail.MainContent
-import at.ac.fhcampuswien.movieappld02.ui.theme.MovieAppLD02Theme
+import at.ac.fhcampuswien.movieappld02.viewmodels.MovieViewModel
 import at.ac.fhcampuswien.movieappld02.widgets.MovieRow
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun HomeScreen(navController: NavController = rememberNavController()) {
+fun MainContent(
+    navController: NavController,
+    movieList: List<Movie> = getMovies(),
+    viewModel: MovieViewModel,
+    clickOnFavorites: (Movie) -> Unit = {}
+) {
+    LazyColumn {
+        items(movieList) { movies ->
+            MovieRow(
+                movie = movies,
+                clickOnFavorites = { movie -> clickOnFavorites(movie) },
+                clickOnItem = { movieId -> navController.navigate(MovieScreens.DetailScreen.name + "/$movieId") },
+                Favorite = viewModel.checkFavoriteMovies(movies)
+            )
+        }
+    }
+}
+
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun HomeScreen(
+    navController: NavController = rememberNavController(),
+    viewModel: MovieViewModel
+) {
 
     var showDropDownMenu by remember {
         mutableStateOf(false)
@@ -33,7 +55,8 @@ fun HomeScreen(navController: NavController = rememberNavController()) {
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(text = "Movies") },
+            TopAppBar(
+                title = { Text(text = "Movies") },
                 actions = {
                     IconButton(onClick = { showDropDownMenu = !showDropDownMenu }) {
                         Icon(
@@ -43,7 +66,7 @@ fun HomeScreen(navController: NavController = rememberNavController()) {
                     }
                     DropdownMenu(expanded = showDropDownMenu,
                         onDismissRequest = { showDropDownMenu = false }) {
-                        DropdownMenuItem(onClick = {navController.navigate(MovieScreens.FavoritesScreen.name)}) {
+                        DropdownMenuItem(onClick = { navController.navigate(MovieScreens.FavoritesScreen.name) }) {
                             Row {
                                 Icon(
                                     imageVector = Icons.Default.Favorite,
@@ -56,35 +79,55 @@ fun HomeScreen(navController: NavController = rememberNavController()) {
                                 text = "Favorites",
                                 modifier = Modifier
                                     .width(90.dp)
+
                             )
                         }
                     }
                 }
+
             )
         }
 
     )
+
     {
-        MainContent(navController = navController)
+        MainContent(
+            navController = navController,
+            viewModel = viewModel,
+            clickOnFavorites = { movie ->
+                if (!viewModel.checkFavoriteMovies(movie)) {
+                    viewModel.addMovie(movie)
+                } else {
+                    viewModel.removeMovie(movie)
+                }
+            }
+        )
     }
 }
 
-@ExperimentalAnimationApi
-@Composable
-fun MainContent(navController: NavController, movies: List<Movie> = getMovies()) {
-    LazyColumn {
-        // item { Text(text = "Header") }   // add a single composable to LazyColumn
+/*
+        @ExperimentalAnimationApi
+        @Composable
+        fun MainContent(
+            navController: NavController,
+            movies: List<Movie> = getMovies(),
+            viewModel: MovieViewModel,
+            onFavoriteClick: (Movie) -> Unit = {}
 
-        items(items = movies) { movie ->    // add a list of composable to LazyColumn
-            MovieRow(movie = movie) { movieId ->
-                navController.navigate(route = MovieScreens.DetailScreen.name + "/$movieId")
+/*
+        ) {
+            LazyColumn {
+                // item { Text(text = "Header") }   // add a single composable to LazyColumn
+
+                items(items = movies) { movie ->    // add a list of composable to LazyColumn
+                    MovieRow(movie = movie) { movieId ->
+                        navController.navigate(route = MovieScreens.DetailScreen.name + "/$movieId")
+                    }
+                }
             }
         }
-        /*
-        itemsIndexed(movies){ index, movie ->   // add a list of composable with index
-            MovieRow(movie)
-        }
-
-         */
-    }
+itemsIndexed(movies){ index, movie ->   // add a list of composable with index
+    MovieRow(movie)
 }
+
+*/
