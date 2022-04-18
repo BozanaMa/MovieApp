@@ -30,7 +30,6 @@ import at.ac.fhcampuswien.movieappld02.navigation.MovieScreens
 fun FavoritesScreen(
     navController: NavController = rememberNavController(),
     viewModel: MovieViewModel = viewModel(),
-    favoriteMovies: List<Movie> = viewModel.getAllMovies()
 
 ) {
 

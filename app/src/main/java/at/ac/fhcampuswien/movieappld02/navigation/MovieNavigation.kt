@@ -30,15 +30,15 @@ fun MovieNavigation() {
 
         // url: www.domain.com/detailscreen/movie=12
         composable(
-            MovieScreens.DetailScreen.name + "/{movieId}",
-            arguments = listOf(navArgument("movieId") {
+            MovieScreens.DetailScreen.name + "/{movie}",
+            arguments = listOf(navArgument("movie") {
                 type = NavType.StringType
             })
         ) { backStackEntry ->
             DetailScreen(
                 viewModel = movieViewModel,
                 navController = navController,
-                movieId = backStackEntry.arguments?.getString("movieId")
+                movieId = backStackEntry.arguments?.getString("movie")
             )
         }
 
